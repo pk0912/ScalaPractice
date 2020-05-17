@@ -1,0 +1,6 @@
+target/
+serialized/
+.idea/
+.DS_Store
+*.iml
+out/
