@@ -15,6 +15,7 @@ Lecture Pointers
              - Object and class with same name in same scope.
              - Object has class level functionality.
              - Class has instance level functionality.
+             - Can access each other's private members.
  - Factory Method
                  - sole purpose to build an instance of the companion class.
                  - apply method can be used for this purpose (widely used)
