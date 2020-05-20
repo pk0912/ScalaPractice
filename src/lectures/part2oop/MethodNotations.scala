@@ -9,6 +9,7 @@ Lecture Pointers
                                    - Also called as operator notation (example of syntactic sugar)
                                    - works with methods having only one parameter
                                    - method acts like an operator
+                                   - called in this way: object method parameter
                    - Prefix notation
                                     - all about unary operators
                                     - are also methods
