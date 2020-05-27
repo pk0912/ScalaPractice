@@ -23,7 +23,7 @@ trait MyTransformer[-A, B] {
   def transform(a: A): B
 }
 
-abstract class MyExtendedGenericList[+A] {
+abstract class MyExtendedGenericList[+A]() {
   def head: A
   def tail: MyExtendedGenericList[A]
   def isEmpty: Boolean
@@ -38,7 +38,7 @@ abstract class MyExtendedGenericList[+A] {
   def filter(predicate: MyPredicate[A]): MyExtendedGenericList[A]
 }
 
-object ExtendedGenericEmpty extends MyExtendedGenericList[Nothing] {
+case object ExtendedGenericEmpty extends MyExtendedGenericList[Nothing] {
   override def head: Nothing = throw new NoSuchElementException
 
   override def tail: MyExtendedGenericList[Nothing] = throw new NoSuchElementException
@@ -60,7 +60,7 @@ object ExtendedGenericEmpty extends MyExtendedGenericList[Nothing] {
   override def filter(predicate: MyPredicate[Nothing]): MyExtendedGenericList[Nothing] = ExtendedGenericEmpty
 }
 
-class ExtendedGenericCons[+A](h: A, t: MyExtendedGenericList[A]) extends MyExtendedGenericList[A] {
+case class ExtendedGenericCons[+A](h: A, t: MyExtendedGenericList[A]) extends MyExtendedGenericList[A] {
   override def head: A = h
 
   override def tail: MyExtendedGenericList[A] = t
@@ -120,6 +120,8 @@ class ExtendedGenericCons[+A](h: A, t: MyExtendedGenericList[A]) extends MyExten
 object ExtendedGenericTest extends App {
   val listOfIntegers: MyExtendedGenericList[Int] =
     new ExtendedGenericCons[Int](1, new ExtendedGenericCons[Int](2, new ExtendedGenericCons[Int](3, ExtendedGenericEmpty)))
+  val cloneListOfIntegers: MyExtendedGenericList[Int] =
+    new ExtendedGenericCons[Int](1, new ExtendedGenericCons[Int](2, new ExtendedGenericCons[Int](3, ExtendedGenericEmpty)))
   val anotherListOfIntegers: MyExtendedGenericList[Int] =
     new ExtendedGenericCons[Int](4, new ExtendedGenericCons[Int](5, ExtendedGenericEmpty))
   val listOfChar: MyExtendedGenericList[Char] =
@@ -148,4 +150,6 @@ object ExtendedGenericTest extends App {
   println(listOfIntegers.flatMap(new MyTransformer[Int, MyExtendedGenericList[Int]] {
     override def transform(a: Int): MyExtendedGenericList[Int] = new ExtendedGenericCons[Int](a, new ExtendedGenericCons[Int](a + 1, ExtendedGenericEmpty))
   }))
+
+  println(cloneListOfIntegers == listOfIntegers) // because of case class (equals method is implemented out of the box)
 }
