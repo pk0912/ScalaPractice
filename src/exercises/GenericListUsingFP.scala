@@ -114,7 +114,6 @@ object GenericListUsingFPTest extends App {
 
   println(listOfIntegers.map((a: Int) => a * 2).toString)
 
-  // shorthand representation of above expression
   println(listOfIntegers.filter((t: Int) => t % 2 == 0).toString)
 
   println(listOfIntegers ++ anotherListOfIntegers)
