@@ -112,13 +112,18 @@ object GenericListUsingFPTest extends App {
 
   println(anotherListOfIntegers.toString)
 
-  println(listOfIntegers.map((a: Int) => a * 2).toString)
+  println(listOfIntegers.map(a => a * 2).toString)
+  // another shorthand way for above expression
+  println(listOfIntegers.map(_ * 2).toString)
 
-  println(listOfIntegers.filter((t: Int) => t % 2 == 0).toString)
+  println(listOfIntegers.filter(t => t % 2 == 0).toString)
+  // another shorthand way for above expression
+  println(listOfIntegers.filter(_ % 2 == 0).toString)
 
   println(listOfIntegers ++ anotherListOfIntegers)
 
-  println(listOfIntegers.flatMap((a: Int) => new ExtendedGenericConsFP[Int](a, new ExtendedGenericConsFP[Int](a + 1, GenericEmptyUsingFP))))
+  println(listOfIntegers.flatMap(a => new ExtendedGenericConsFP[Int](a, new ExtendedGenericConsFP[Int](a + 1, GenericEmptyUsingFP))))
+  // not for the above expression as the parameter to the anonymous function is getting used twice, but multiple use of underscore refers to multiple parameters
 
 
   println(cloneListOfIntegers == listOfIntegers) // because of case class (equals method is implemented out of the box)

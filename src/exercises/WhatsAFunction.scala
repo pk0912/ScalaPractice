@@ -22,6 +22,12 @@ object WhatsAFunction extends App {
   }
   // shorthand expression for above expression
   def supAdd: (Int) => ((Int) => Int) = (v1: Int) => (v2: Int) => v1 + v2
+//  val shortSupAdd = (v1: Int) => (v2 : Int) => v1 + v2
+  val shortSupAdd: Int => (Int => Int) = v1 => v2 => v1 + v2
+
+  println(shortSupAdd)
+  println(shortSupAdd(9))
+  println(shortSupAdd(9)(9))
 
   println(superAdder(1))
   println(superAdder(1)(1))
