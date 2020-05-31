@@ -12,6 +12,8 @@ package exercises
 
      - fold(start)(function) => a Value
        [1,2,3].fold(0)(x + y) = 6
+
+  2. GenericListUsingFP supports for comprehensions?
  */
 abstract class GenericListUsingFP[+A]() {
   def head: A
@@ -189,5 +191,15 @@ object GenericListUsingFPTest extends App {
 
   println(listOfIntegers.fold(0)(_ + _))
   println(listOfChar.fold("")(_ + "" + _))
+
+  for {
+    n <- listOfIntegers
+  } println(n)
+
+  val forCombinations = for {
+    c <- listOfChar
+    n <- listOfIntegers
+  } yield "" + c + n
+  println(forCombinations)
 }
 
