@@ -1,5 +1,18 @@
 package exercises
+/*
+  1. Expand GenericListUsingFP
+     - foreach method A => Unit
+       [1,2,3].foreach(x => println(x))
 
+     - sort function ((A, A) => Int) => GenericListUsingFP
+       [1,2,3].sort((x,y) => y - x) => [3,2,1]
+
+     - zipWith(list, (A, A) => B) => GenericListUsingFP
+       [1,2,3].zipWith([4,5,6], x * y) => [1 * 4, 2 * 5, 3 * 6] = [4, 10, 18]
+
+     - fold(start)(function) => a Value
+       [1,2,3].fold(0)(x + y) = 6
+ */
 abstract class GenericListUsingFP[+A]() {
   def head: A
   def tail: GenericListUsingFP[A]
@@ -15,6 +28,11 @@ abstract class GenericListUsingFP[+A]() {
   def map[B](transformer: A => B): GenericListUsingFP[B]
   def flatMap[B](transformer: A => GenericListUsingFP[B]): GenericListUsingFP[B]
   def filter(predicate: A => Boolean): GenericListUsingFP[A]
+
+  def foreach(f: A => Unit)
+  def sort(compare: (A, A) => Int): GenericListUsingFP[A]
+  def zipWith[B, C](list: GenericListUsingFP[B], f: (A, B) => C): GenericListUsingFP[C]
+  def fold[B](start: B)(operator: (B, A) => B): B
 }
 
 case object GenericEmptyUsingFP extends GenericListUsingFP[Nothing] {
@@ -25,7 +43,7 @@ case object GenericEmptyUsingFP extends GenericListUsingFP[Nothing] {
   override def isEmpty: Boolean = true
 
   override def add[B >: Nothing](element: B): GenericListUsingFP[B] =
-    new ExtendedGenericConsFP(element, GenericEmptyUsingFP)
+    ExtendedGenericConsFP(element, GenericEmptyUsingFP)
 
   override def printElements: String = ""
 
@@ -37,6 +55,16 @@ case object GenericEmptyUsingFP extends GenericListUsingFP[Nothing] {
     GenericEmptyUsingFP
 
   override def filter(predicate: Nothing => Boolean): GenericListUsingFP[Nothing] = GenericEmptyUsingFP
+
+  override def foreach(f: Nothing => Unit): Unit = ()
+
+  override def sort(compare: (Nothing, Nothing) => Int): GenericListUsingFP[Nothing] = GenericEmptyUsingFP
+
+  override def zipWith[B, C](list: GenericListUsingFP[B], f: (Nothing, B) => C): GenericListUsingFP[C] =
+    if (!list.isEmpty) throw new RuntimeException("Lists do not have the same length!!")
+    else GenericEmptyUsingFP
+
+  override def fold[B](start: B)(operator: (B, Nothing) => B): B = start
 }
 
 case class ExtendedGenericConsFP[+A](h: A, t: GenericListUsingFP[A]) extends GenericListUsingFP[A] {
@@ -46,7 +74,7 @@ case class ExtendedGenericConsFP[+A](h: A, t: GenericListUsingFP[A]) extends Gen
 
   override def isEmpty: Boolean = false
 
-  override def add[B >: A](element: B): GenericListUsingFP[B] = new ExtendedGenericConsFP(element, this)
+  override def add[B >: A](element: B): GenericListUsingFP[B] = ExtendedGenericConsFP(element, this)
 
   override def printElements: String = {
     if (t.isEmpty) "" + h
@@ -94,11 +122,33 @@ case class ExtendedGenericConsFP[+A](h: A, t: GenericListUsingFP[A]) extends Gen
     if (predicate(h)) new ExtendedGenericConsFP[A](h, t.filter(predicate))
     else t.filter(predicate)
   }
+
+  override def foreach(f: A => Unit): Unit = {
+    f(h)
+    t.foreach(f)
+  }
+
+  override def sort(compare: (A, A) => Int): GenericListUsingFP[A] = {
+    def insert(x: A, sortedList: GenericListUsingFP[A]): GenericListUsingFP[A] = {
+      if (sortedList.isEmpty) ExtendedGenericConsFP(x, GenericEmptyUsingFP)
+      else if (compare(x, sortedList.head) <= 0) ExtendedGenericConsFP(x, sortedList)
+      else ExtendedGenericConsFP(sortedList.head, insert(x, sortedList.tail))
+    }
+    val sortedTail = t.sort(compare)
+    insert(h, sortedTail)
+  }
+
+  override def zipWith[B, C](list: GenericListUsingFP[B], f: (A, B) => C): GenericListUsingFP[C] = {
+    if (list.isEmpty) throw new RuntimeException("Lists do not have the same length!!")
+    else ExtendedGenericConsFP(f(h, list.head), t.zipWith(list.tail, f))
+  }
+
+  override def fold[B](start: B)(operator: (B, A) => B): B = t.fold(operator(start, h))(operator)
 }
 
 object GenericListUsingFPTest extends App {
   val listOfIntegers: GenericListUsingFP[Int] =
-    new ExtendedGenericConsFP[Int](1, new ExtendedGenericConsFP[Int](2, new ExtendedGenericConsFP[Int](3, GenericEmptyUsingFP)))
+    new ExtendedGenericConsFP[Int](10, new ExtendedGenericConsFP[Int](2, new ExtendedGenericConsFP[Int](6, GenericEmptyUsingFP)))
   val cloneListOfIntegers: GenericListUsingFP[Int] =
     new ExtendedGenericConsFP[Int](1, new ExtendedGenericConsFP[Int](2, new ExtendedGenericConsFP[Int](3, GenericEmptyUsingFP)))
   val anotherListOfIntegers: GenericListUsingFP[Int] =
@@ -127,5 +177,17 @@ object GenericListUsingFPTest extends App {
 
 
   println(cloneListOfIntegers == listOfIntegers) // because of case class (equals method is implemented out of the box)
+
+  listOfIntegers.foreach(println)
+
+  println(listOfIntegers.sort((x, y) => y - x))
+
+  println(listOfIntegers.zipWith[Char, String](listOfChar, (x: Int, y: Char) => x + "" + y))
+
+  // shorthand notation for above expression
+  println(listOfIntegers.zipWith[Char, String](listOfChar, _ + "" + _))
+
+  println(listOfIntegers.fold(0)(_ + _))
+  println(listOfChar.fold("")(_ + "" + _))
 }
 
